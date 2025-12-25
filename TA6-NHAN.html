@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#6a11cb">
+    <title>Ôn tập Tiếng Anh 6 - THCS VĂN LƯƠNG</title>
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --accent: #ff416c;
+            --success: #00b09b;
+            --warning: #f7b733;
+            --danger: #ff4b1f;
+            --text: #2d3436;
+            --glass-bg: rgba(255, 255, 255, 0.98);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        /* --- Reset & Base Mobile --- */
+        * {
+            box-sizing: border-box; margin: 0; padding: 0;
+            user-select: none; -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            height: 100vh; height: 100dvh;
+            color: var(--text); overflow: hidden; position: relative;
+        }
+
+        .bg-shapes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
+        .shape { position: absolute; opacity: 0.1; fill: white; animation: float 20s infinite linear; }
+        @keyframes float { 0% { transform: translateY(110vh) rotate(0deg); } 100% { transform: translateY(-10vh) rotate(360deg); } }
+
+        /* --- Header & Footer (Fixed) --- */
+        .fixed-header {
+            position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 15px; z-index: 1000; color: white;
+            background: rgba(0,0,0,0.35); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .header-left, .header-right {
+            font-size: 0.75rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%;
+        }
+
+        .slogan-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 35px;
+            background: rgba(0, 0, 0, 0.9); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; z-index: 9999;
+            backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+        }
+        .slogan-footer a { color: #00d2ff; text-decoration: none; pointer-events: auto; font-weight: 600; }
+
+        /* --- Screens --- */
+        #app { position: relative; z-index: 1; width: 100%; height: 100%; display: flex; flex-direction: column; }
+        .screen {
+            display: none; width: 100%; height: 100%;
+            padding: 75px 15px 45px 15px;
+            flex-direction: column; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .screen.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .glass-panel {
+            background: var(--glass-bg); border-radius: 20px; box-shadow: var(--shadow);
+            width: 100%; max-width: 800px; height: 100%;
+            display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--glass-border);
+        }
+
+        .panel-content {
+            flex: 1; overflow-y: auto; padding: 15px;
+            -webkit-overflow-scrolling: touch;
+            display: flex; flex-direction: column;
+        }
+
+        /* --- UI Elements --- */
+        .btn {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            border: none; border-radius: 50px; color: white; padding: 12px 20px;
+            font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase;
+            width: 100%; box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+            margin-top: 10px; min-height: 50px; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: 0.2s;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn-success { background: linear-gradient(45deg, #11998e, #38ef7d); }
+        .btn-secondary { background: white; color: var(--primary); border: 2px solid var(--primary); box-shadow: none; }
+        .btn-warning { background: linear-gradient(45deg, #ff9966, #ff5e62); }
+
+        input {
+            width: 100%; padding: 14px 15px; margin: 10px 0; border-radius: 12px;
+            border: 1px solid #ddd; font-size: 1rem; outline: none; background: #fdfdfd;
+        }
+
+        /* --- Game Header --- */
+        .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-shrink: 0; }
+        .q-counter-box { background: white; padding: 6px 12px; border-radius: 12px; font-weight: 800; color: var(--primary); font-size: 0.85rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); min-width: 70px; text-align: center; }
+        .part-indicator { font-size: 0.7rem; font-weight: 900; color: white; background: rgba(0,0,0,0.2); padding: 5px 12px; border-radius: 20px; text-transform: uppercase; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; border: 1px solid rgba(255,255,255,0.3); }
+        .timer-badge { background: white; color: var(--danger); padding: 6px 12px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; min-width: 55px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .progress-bar { height: 6px; background: #eaedf2; border-radius: 3px; overflow: hidden; margin-top: 5px; flex-shrink: 0; }
+        .progress-fill { height: 100%; background: var(--warning); width: 0%; transition: width 0.4s ease; }
+
+        .q-tag { display: inline-block; background: var(--primary); color: white; padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; margin-bottom: 10px; }
+        .q-text { font-size: 1.15rem; font-weight: 800; color: #111; text-align: center; margin: 10px 0 20px 0; line-height: 1.5; }
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 12px; padding-bottom: 20px; }
+        
+        .option-btn {
+            background: white; border: 2px solid #edf0f5; padding: 14px; border-radius: 16px;
+            text-align: left; font-size: 1rem; cursor: pointer; display: flex; align-items: center;
+            min-height: 55px; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .option-btn .marker { width: 30px; height: 30px; border-radius: 50%; background: #f1f3f7; color: #5a6b8a; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex-shrink: 0; font-size: 0.85rem; border: 1px solid #dee2e6; }
+        .option-btn.selected { border-color: var(--secondary); background: #f0f7ff; }
+        .option-btn.correct { border-color: var(--success); background: #f0fff4; }
+        .option-btn.wrong { border-color: var(--danger); background: #fff5f5; }
+
+        .explanation { background: #e8f5e9; padding: 15px; border-radius: 12px; border-left: 5px solid var(--success); font-size: 0.9rem; margin-top: 15px; display: none; line-height: 1.5; animation: slideUp 0.4s forwards; }
+        .explanation.error { background: #fff1f1; border-left-color: var(--danger); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Cheat Warning --- */
+        #cheatOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(220, 53, 69, 0.98); z-index: 10000; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 30px; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-card { background: white; padding: 20px; border-radius: 20px; width: 100%; max-width: 450px; max-height: 85vh; display: flex; flex-direction: column; }
+        .modal-scroll { overflow-y: auto; flex: 1; padding-right: 5px; margin-top: 15px; }
+        .review-item { text-align: left; border-bottom: 1px solid #f1f3f7; padding: 12px 0; }
+
+        @media (min-width: 768px) {
+            .options-grid { grid-template-columns: 1fr 1fr; gap: 15px; }
+            .screen { padding: 90px 40px 60px 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-shapes" id="bgShapes"></div>
+    <div class="mute-btn" id="muteToggle" style="position:fixed; bottom:50px; right:15px; width:45px; height:45px; background:rgba(0,0,0,0.6); border-radius:50%; color:white; display:flex; align-items:center; justify-content:center; z-index:9998; cursor:pointer;">🔊</div>
+    <canvas id="confettiCanvas" style="position:fixed; top:0; left:0; pointer-events:none; z-index:100;"></canvas>
+    
+    <div class="fixed-header">
+        <div class="header-left">GV: Lương Thị Thanh Nhàn</div>
+        <div class="header-right">THCS VĂN LƯƠNG</div>
+    </div>
+
+    <div class="slogan-footer">
+        <a href="https://zalo.me/0798945678" target="_blank">Software developed by Lecturer Nguyen Thanh Tu</a>
+    </div>
+
+    <div id="cheatOverlay">
+        <div style="font-size: 5rem; margin-bottom: 10px;">⚠️</div>
+        <h2 style="margin-bottom: 15px;">VI PHẠM QUY CHẾ</h2>
+        <p>Hệ thống phát hiện bạn rời khỏi màn hình.</p>
+        <p style="margin: 20px 0;">Số lần vi phạm: <b id="violCount" style="color:yellow; font-size:2rem;">0</b>/2</p>
+        <button id="resumeBtn" class="btn" style="background:white; color:var(--danger); width: 200px;">QUAY LẠI NGAY</button>
+    </div>
+
+    <div id="app">
+        <!-- 1. LOGIN -->
+        <div id="screen-login" class="screen active">
+            <div class="glass-panel">
+                <div class="panel-content" style="text-align:center; justify-content:center;">
+                    <div style="width:90px; height:90px; margin:0 auto 10px;">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="48" fill="url(#grad)" stroke="white" stroke-width="3"/>
+                            <defs><linearGradient id="grad"><stop offset="0%" stop-color="#6a11cb"/><stop offset="100%" stop-color="#2575fc"/></linearGradient></defs>
+                            <path d="M25 35 Q25 65 50 75 Q75 65 75 35 V25 Q75 55 50 65 Q25 55 25 25 Z" fill="white"/>
+                            <text x="50" y="60" font-family="Arial" font-weight="900" font-size="28" fill="#6a11cb" text-anchor="middle">E6</text>
+                        </svg>
+                    </div>
+                    <h1 style="color:var(--primary); font-size:1.2rem; font-weight:900; text-transform:uppercase;">TRƯỜNG THCS VĂN LƯƠNG</h1>
+                    <div style="height:3px; width:40px; background:var(--accent); margin:10px auto;"></div>
+                    <div style="background:var(--secondary); color:white; display:inline-block; padding:4px 15px; border-radius:20px; font-size:0.85rem; font-weight:bold; margin-bottom:15px;">TIẾNG ANH 6</div>
+                    
+                    <form id="loginForm">
+                        <input type="text" id="studentName" placeholder="Họ và Tên học sinh..." required autocomplete="off">
+                        <input type="text" id="studentClass" placeholder="Lớp (Ví dụ: 6A)..." required autocomplete="off">
+                        <button type="submit" class="btn btn-success">BẮT ĐẦU ÔN TẬP</button>
+                    </form>
+                    <div id="teacherBtn" style="margin-top:20px; font-size:0.8rem; color:#888; text-decoration:underline; cursor:pointer;">Dành cho Giáo viên</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. REVIEW -->
+        <div id="screen-review" class="screen">
+            <div class="glass-panel">
+                <div class="panel-content">
+                    <h2 id="greetingMsg" style="color:var(--primary); font-weight:800;">Xin chào!</h2>
+                    <div style="background:var(--primary); color:white; padding:10px; border-radius:10px; margin:15px 0; font-weight:bold; font-size:0.85rem; text-align:center;">NỘI DUNG TRỌNG TÂM</div>
+                    <div style="display:grid; gap:10px; text-align:left;">
+                        <div style="background:white; padding:12px; border-radius:12px; border-left:4px solid var(--accent);">
+                            <h4 style="color:var(--primary); font-size:0.95rem; margin-bottom:5px;">🔊 Phát âm & Ngữ pháp</h4>
+                            <p style="font-size:0.85rem; color:#555;">Các âm chuẩn; Thì HT đơn, HT tiếp diễn; So sánh hơn; Động từ khuyết thiếu...</p>
+                        </div>
+                    </div>
+                    <button id="toRulesBtn" class="btn">TIẾP THEO</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. RULES -->
+        <div id="screen-rules" class="screen">
+            <div class="glass-panel">
+                <div class="panel-content">
+                    <h2 style="color:var(--danger); text-align:center;">QUY CHẾ PHÒNG THI</h2>
+                    <div style="background:#fffaf0; padding:20px; border-radius:15px; text-align:left; margin:15px 0; border:1px solid #ffeeba;">
+                        <ul style="list-style:none; font-size:0.95rem; line-height:2;">
+                            <li>✅ <b>Số lượng:</b> 55 câu hỏi (3 phần).</li>
+                            <li>🕒 <b>Thời gian:</b> 90 giây cho mỗi câu.</li>
+                            <li>🚫 <b>Nghiêm cấm:</b> Thoát App, chuyển Tab.</li>
+                            <li style="color:red; font-weight:bold; margin-top:10px; text-align:center;">⚠️ Rời màn hình 2 lần = Huỷ bài!</li>
+                        </ul>
+                    </div>
+                    <button id="startBtn" class="btn btn-success">ĐÃ HIỂU & LÀM BÀI</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. GAME -->
+        <div id="screen-game" class="screen">
+            <div class="glass-panel">
+                <div class="panel-content" style="padding: 15px;">
+                    <div class="game-header">
+                        <div class="q-counter-box"><small>CÂU</small><br><span id="qCountDisplay">1</span>/55</div>
+                        <div id="partIndicator" class="part-indicator">PHẦN I</div>
+                        <div class="timer-badge"><span id="timer">90</span>s</div>
+                    </div>
+                    <div class="progress-bar"><div class="progress-fill" id="progBar"></div></div>
+
+                    <div class="question-box" style="margin-top: 15px;">
+                        <div class="question-scroll">
+                            <div id="qTypeTag" class="q-tag">TRẮC NGHIỆM</div>
+                            <div id="qText" class="q-text">Loading...</div>
+                            <div id="optsGrid" class="options-grid"></div>
+                            <div id="explainBox" class="explanation"></div>
+                        </div>
+                        <div id="nextArea" style="display:none; padding-top:10px;">
+                            <button id="nextBtn" class="btn btn-success" style="margin:0;">CÂU TIẾP THEO ➜</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. RESULT -->
+        <div id="screen-result" class="screen">
+            <div class="glass-panel">
+                <div class="panel-content" style="text-align:center; justify-content:center;">
+                    <div id="resEmoji" style="font-size:3.5rem;">🏆</div>
+                    <h2 id="resultTitle">KẾT QUẢ</h2>
+                    <div class="score-big" id="finalScore">0.0</div>
+                    <p style="font-size:0.85rem; color:#666; margin-bottom:15px;">Thang điểm 10</p>
+                    <p id="violationMsg" style="color:red; font-weight:bold; display:none; margin-bottom:10px;">(BÀI THI BỊ HUỶ DO VI PHẠM)</p>
+                    <p id="feedbackMsg" style="margin: 10px 0; font-weight: 700;">...</p>
+                    
+                    <button id="sendMailBtn" class="btn btn-success">📧 GỬI ĐIỂM CHO CÔ</button>
+                    <button id="reviewWrongBtn" class="btn btn-warning" style="display:none;">👁️ XEM CÂU SAI ĐỂ ÔN TẬP</button>
+                    <button id="dlBtn" class="btn btn-secondary">📥 TẢI PHIẾU ĐIỂM (.TXT)</button>
+                    
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <button onclick="location.reload()" class="btn btn-secondary" style="flex:1; margin:0; font-size:0.9rem;">Làm Lại</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #eee; padding-bottom:10px;">
+                <h3 style="color:var(--danger); margin:0;">Danh sách câu sai</h3>
+                <span onclick="$('reviewModal').style.display='none'" style="font-size:2rem; cursor:pointer;">&times;</span>
+            </div>
+            <div class="modal-scroll" id="reviewList"></div>
+            <button onclick="$('reviewModal').style.display='none'" class="btn" style="margin-top:15px;">XÁC NHẬN</button>
+        </div>
+    </div>
+
+    <!-- Teacher Modal -->
+    <div id="teacherModal" class="modal">
+        <div class="modal-card">
+            <span onclick="$('teacherModal').style.display='none'" style="float:right; font-size:2rem; cursor:pointer;">&times;</span>
+            <h3>Bảng điểm</h3>
+            <input type="password" id="tPass" placeholder="Nhập mật khẩu...">
+            <button id="tLogin" class="btn">ĐĂNG NHẬP</button>
+            <div id="tData" style="display:none; margin-top:15px; overflow-y:auto;">
+                <table style="width:100%; font-size:0.8rem; border-collapse: collapse;" id="tTable"></table>
+                <button onclick="localStorage.removeItem('e6_scores'); location.reload();" style="color:red; margin-top:10px; background:none; border:none; width:100%;">Xóa hết dữ liệu</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        
+        /* --- FULL DATABASE --- */
+        const RAW_DATA = [
+            // PART I (30)
+            { type: "Từ vựng", q: "My sister is very _____. She is very good at painting pictures.", options: ["confident", "careful", "creative", "funny"], ans: 2, explain: "Creative (sáng tạo) phù hợp với việc vẽ tranh." },
+            { type: "Ngữ pháp", q: "She and her friends _____ photos in the fields now.", options: ["is taking", "are taking", "takes", "take"], ans: 1, explain: "Dấu hiệu 'now' -> Hiện tại tiếp diễn." },
+            { type: "Giới từ", q: "There aren't any pillows _____ the bed.", options: ["on", "in", "behind", "in front of"], ans: 0, explain: "Gối ở trên giường -> on." },
+            { type: "Từ vựng", q: "Life in the country is _____. There aren't many things to do there.", options: ["boring", "peaceful", "quiet", "busy"], ans: 0, explain: "Boring (nhàm chán)." },
+            { type: "So sánh", q: "Mai plays the violin _____ than Lan.", options: ["gooder", "better", "less", "more good"], ans: 1, explain: "So sánh hơn của 'well' là 'better'." },
+            { type: "So sánh", q: "She is coming _____ than I.", options: ["earlier", "more early", "early than", "more earlier"], ans: 0, explain: "Early -> Earlier." },
+            { type: "Giới từ", q: "The cinema is to the left _____ the art gallery.", options: ["in", "to", "of", "on"], ans: 2, explain: "To the left OF something." },
+            { type: "Từ vựng", q: "These buildings were built 200 years ago. They're _____.", options: ["exciting", "quiet", "historic", "interesting"], ans: 2, explain: "Historic (lịch sử)." },
+            { type: "Văn hóa", q: "In Vietnam, Cơm Tấm is a popular rice dish with _____.", options: ["pork", "fish", "vegetable", "cake"], ans: 0, explain: "Pork (sườn heo)." },
+            { type: "Ngữ pháp", q: "You _____ travel alone to the mountain. Always go in a group.", options: ["must", "mustn't", "do", "don't"], ans: 1, explain: "Mustn't (Không được)." },
+            { type: "Từ vựng", q: "I don't know where to go now. Pass me the _____ please.", options: ["backpack", "compass", "sleeping bag", "sun hat"], ans: 1, explain: "Compass (la bàn)." },
+            { type: "Giới từ", q: "The boy is sitting _____ the computer. He is playing computer games.", options: ["under", "next to", "behind", "in front of"], ans: 3, explain: "In front of (trước)." },
+            { type: "Giới từ", q: "There are some dirty dishes _____ the floor.", options: ["on", "with", "in", "for"], ans: 0, explain: "On the floor." },
+            { type: "Tìm từ khác loại", q: "Find one odd word:", options: ["better", "smaller", "worker", "hotter"], ans: 2, explain: "Worker là danh từ." },
+            { type: "So sánh", q: "Mai's apartment is _____ than Nam's.", options: ["modern", "moderner", "more modern", "most modern"], ans: 2, explain: "More modern." },
+            { type: "Giao tiếp", q: "_____ the first turning on the left. The bank is on your right.", options: ["Give", "Take", "Have", "Do"], ans: 1, explain: "Take the turning." },
+            { type: "Từ vựng", q: "We often _____ the furniture before Tet.", options: ["hang", "watch", "plant", "clean"], ans: 3, explain: "Clean (lau dọn)." },
+            { type: "So sánh", q: "Hoa is _____ at Physics than her sister.", options: ["good", "best", "better", "the best"], ans: 2, explain: "Better." },
+            { type: "Từ vựng", q: "There are many beautiful _____ in our garden at Tet.", options: ["trees", "flowers", "plants", "balloons"], ans: 1, explain: "Flowers." },
+            { type: "Ngữ pháp", q: "We _____ wash our hands before the meals.", options: ["should", "won't", "shouldn't", "mustn't"], ans: 0, explain: "Should (nên)." },
+            { type: "Địa điểm", q: "I go to the _____ to send the letter.", options: ["supermarket", "zoo", "post office", "bank"], ans: 2, explain: "Post office." },
+            { type: "Giao tiếp", q: "Would you like to come to my party next week? - _____", options: ["No, thank you", "Yes, please", "I like to do nothing", "Yes, I'd love to"], ans: 3, explain: "Yes, I'd love to." },
+            { type: "Từ vựng", q: "The streets aren't old, they're _____.", options: ["narrow", "modern", "beautiful", "expensive"], ans: 1, explain: "Modern." },
+            { type: "Văn hóa", q: "You shouldn't _____ things on the first day of Tet.", options: ["make", "hang", "break", "cook"], ans: 2, explain: "Break (làm vỡ)." },
+            { type: "Ngữ pháp", q: "How _____ money do you want?", options: ["many", "much", "little", "a lot of"], ans: 1, explain: "How much (không đếm được)." },
+            { type: "Tìm lỗi sai", q: "Find error: You shouldn't do exercise and eat vegetables and fruit everyday.", options: ["shouldn't", "do", "eat", "everyday"], ans: 0, explain: "Sửa thành Should." },
+            { type: "Tìm lỗi sai", q: "Find error: You mustn't picking flowers in the school garden.", options: ["mustn't", "picking", "in", "the"], ans: 1, explain: "Sau mustn't dùng động từ nguyên thể." },
+            { type: "Tìm lỗi sai", q: "Find error: Lan is more taller than Tam.", options: ["is", "more", "than", "taller"], ans: 1, explain: "Bỏ more." },
+            { type: "Giao tiếp", q: "A: Can you tell me the way to the nearest post office? - B: _____", options: ["You are right", "Turn right", "I am sorry", "I'd love to"], ans: 1, explain: "Turn right." },
+            { type: "Giao tiếp", q: "A: Could you tell me the way to the temple? - B: _____", options: ["You are welcome", "Go straight ahead", "You are right", "I'd love to"], ans: 1, explain: "Go straight ahead." },
+            // PART II
+            { type: "Viết lại câu", q: "Quang is lazier than Ha (hard-working)", options: ["Ha is lazier than Quang", "Ha is more hard-working than Quang", "Quang is more hard-working", "Ha is as hard-working"], ans: 1, explain: "Trái nghĩa với 'lazy' là 'hard-working'." },
+            { type: "Viết lại câu", q: "A city is noisier than a village. (peaceful)", options: ["A village is more peaceful than a city", "A city is more peaceful", "A village is less peaceful", "A village is as peaceful"], ans: 0, explain: "Làng quê yên bình hơn." },
+            { type: "Viết lại câu", q: "Please tell me the way to the railway station.", options: ["Can you tell me the way...?", "You tell me the way...", "Do you tell me the way...?", "Will you told me...?"], ans: 0, explain: "Câu đề nghị lịch sự." },
+            { type: "Viết lại câu", q: "It is not good for you to stay up too late.", options: ["You must stay up late", "You should stay up late", "You shouldn't stay up too late", "You won't stay up late"], ans: 2, explain: "Shouldn't." },
+            { type: "Viết lại câu", q: "You are not allowed to wear usual clothes at school.", options: ["You must wear", "You mustn't wear usual clothes", "You should wear", "You don't wear"], ans: 1, explain: "Mustn't." },
+            { type: "Viết lại câu", q: "My mother is shorter than my father. (tall)", options: ["Father is shorter", "My father is taller than my mother", "Father is as tall", "Father is not tall"], ans: 1, explain: "Bố cao hơn mẹ." },
+            { type: "Viết lại câu", q: "Why don't you join a sports club?", options: ["You should join a sports club", "You must join", "You shouldn't join", "You won't join"], ans: 0, explain: "Gợi ý: You should." },
+            { type: "Viết lại câu", q: "Don't drop litter at public places.", options: ["You should drop", "You mustn't drop litter", "You must drop", "You can drop"], ans: 1, explain: "Cấm: Mustn't drop." },
+            { type: "Sắp xếp từ", q: "My brother cooks special food. (usually)", options: ["My brother usually cooks...", "My brother cooks usually...", "Usually my brother cooks...", "My brother cooks... usually"], ans: 0, explain: "Usually đứng trước động từ." },
+            { type: "Sở hữu cách", q: "My teacher has a house next to our house.", options: ["my teacher house", "my teacher's house", "house of my teacher", "my teachers house"], ans: 1, explain: "Teacher's house." },
+            { type: "Viết lại câu", q: "Elena has a big bookshelf in her bedroom.", options: ["There is a big bookshelf...", "There are a big bookshelf...", "There has a big...", "There have a big..."], ans: 0, explain: "There is..." },
+            { type: "Sở hữu cách", q: "My aunt has a daughter, Vy.", options: ["Vy's sister", "Vy's cousin", "Vy's aunt", "Vy's mother"], ans: 1, explain: "Cousin (Anh/chị/em họ)." },
+            { type: "Viết lại câu", q: "We are not allowed to pick up flowers.", options: ["We should pick", "We mustn't pick up flowers", "We can pick", "We must pick"], ans: 1, explain: "Mustn't pick." },
+            { type: "Viết lại câu", q: "It is good for you to drink a lot of milk.", options: ["You should drink a lot of milk", "You shouldn't drink", "You must drink", "You can drink"], ans: 0, explain: "You should drink." },
+            { type: "Viết lại câu", q: "My house is smaller than your house (big)", options: ["Your house is smaller", "Your house is bigger than my house", "Your house is as big", "Your house is biggest"], ans: 1, explain: "Your house is bigger." },
+            // PART III
+            { type: "Sắp xếp câu", q: "school / usually / I / play / after / sports", options: ["I usually play sports after school", "I play usually sports after school", "Sports I usually play after school", "I usually sports play after school"], ans: 0, explain: "S + usually + V." },
+            { type: "Sắp xếp câu", q: "the supermarket / Is / next / to / the post office?", options: ["Is to the post office next the supermarket?", "Is the supermarket next to the post office?", "Next to the supermarket is the post office?", "Is to the supermarket next the post office?"], ans: 1, explain: "Is A next to B?" },
+            { type: "Sắp xếp câu", q: "than / These boxes / those boxes / are / bigger", options: ["These boxes are bigger than those boxes", "These boxes bigger are than those boxes", "Bigger are these boxes than those", "Are these boxes bigger than those"], ans: 0, explain: "A are bigger than B." },
+            { type: "Sắp xếp câu", q: "homework / must / everyday / do / you", options: ["You must do homework everyday", "Must you do homework everyday", "You do must homework everyday", "Everyday you must do homework"], ans: 0, explain: "You must do homework." },
+            { type: "Sắp xếp câu", q: "and fruit juices / everyday / drink milk / Children / should", options: ["Children should drink milk and fruit juices everyday", "Children drink milk and should fruit juices", "Should children drink milk and fruit juices", "Children should fruit juices and drink milk"], ans: 0, explain: "Children should drink..." },
+            { type: "Sắp xếp câu", q: "mountain / world / is / the / the / in / highest / Mount Everest", options: ["Mount Everest is the highest mountain in the world", "Mount Everest is the mountain highest in world", "The world is the highest mountain in Mount Everest", "Highest mountain in the world is Mount Everest"], ans: 0, explain: "So sánh nhất." },
+            { type: "Sắp xếp câu", q: "play / football / afternoon / Let's / this", options: ["Let's play football this afternoon", "Let's football play this afternoon", "Play football let's this afternoon", "This afternoon let's play football"], ans: 0, explain: "Let's + V inf." },
+            { type: "Sắp xếp câu", q: "tell me / to / the post office / Can you / the way?", options: ["Can you tell me the way to the post office?", "Can you tell me the post office to the way?", "Tell me the way to the post office can you?", "Can you the way to tell me post office?"], ans: 0, explain: "Can you tell me the way...?" },
+            { type: "Sắp xếp câu", q: "make / noise / in / the museum / You mustn't / lots of", options: ["You mustn't make lots of noise in the museum", "You make mustn't lots of noise in the museum", "In the museum you mustn't make noise", "You mustn't make noise lots of in the museum"], ans: 0, explain: "You mustn't make noise." },
+            { type: "Sắp xếp câu", q: "meeting / What about / the theatre / outside?", options: ["What about meeting outside the theatre?", "What about outside the theatre meeting?", "Meeting outside the theatre what about?", "What about the theatre meeting outside?"], ans: 0, explain: "What about + V-ing...?" }
+        ];
+
+        /* --- LOGIC APP --- */
+        let QUESTION_DATA = [];
+        let state = { screen: 'login', qIdx: 0, score: 0, timer: 90, timerId: null, answers: [], violations: 0, isCheated: false };
+
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let ctx = null;
+
+        function playTone(freq, type) {
+            try {
+                if(!ctx) ctx = new AudioCtx();
+                if(ctx.state==='suspended') ctx.resume();
+                let o = ctx.createOscillator(), g = ctx.createGain();
+                o.type=type; o.frequency.value=freq;
+                g.gain.setValueAtTime(0.1, ctx.currentTime);
+                g.gain.linearRampToValueAtTime(0, ctx.currentTime+0.15);
+                o.connect(g); g.connect(ctx.destination);
+                o.start(); o.stop(ctx.currentTime+0.15);
+            } catch(e){}
+        }
+
+        function shuffle(arr) {
+            let ci = arr.length, ri;
+            while(ci != 0) { ri = Math.floor(Math.random()*ci); ci--; [arr[ci],arr[ri]]=[arr[ri],arr[ci]]; }
+            return arr;
+        }
+
+        function prepareData() {
+            let d = JSON.parse(JSON.stringify(RAW_DATA));
+            d = shuffle(d);
+            d.forEach(q => {
+                let ansTxt = q.options[q.ans];
+                q.options = shuffle(q.options);
+                q.ans = q.options.indexOf(ansTxt);
+            });
+            QUESTION_DATA = d;
+        }
+
+        function showScreen(name) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            $(`screen-${name}`).classList.add('active');
+            state.screen = name;
+        }
+
+        function startGame() {
+            state.qIdx=0; state.score=0; state.answers=[]; state.violations=0; state.isCheated=false;
+            prepareData(); showScreen('game'); loadQ();
+        }
+
+        function loadQ() {
+            let q = QUESTION_DATA[state.qIdx];
+            $('qCountDisplay').innerText = state.qIdx + 1;
+            $('progBar').style.width = ((state.qIdx)/QUESTION_DATA.length*100)+'%';
+            $('qTypeTag').innerText = q.type;
+            $('qText').innerText = q.q;
+            $('explainBox').style.display='none';
+            $('nextArea').style.display='none';
+
+            let p = "TRẮC NGHIỆM";
+            if(q.type.includes('Viết')) p = "VIẾT LẠI CÂU";
+            else if(q.type.includes('Sắp')) p = "SẮP XẾP TỪ";
+            $('partIndicator').innerText = p;
+
+            let grid = $('optsGrid'); grid.innerHTML='';
+            let labs = ['A','B','C','D'];
+            q.options.forEach((opt,i) => {
+                let b = document.createElement('div'); b.className='option-btn';
+                b.innerHTML = `<div class="marker">${labs[i]}</div><div>${opt}</div>`;
+                b.onclick = () => checkAns(i, b);
+                grid.appendChild(b);
+            });
+
+            clearInterval(state.timerId); state.timer=90; $('timer').innerText=90;
+            state.timerId = setInterval(() => {
+                state.timer--; $('timer').innerText=state.timer;
+                if(state.timer<=0) checkAns(-1, null);
+            }, 1000);
+        }
+
+        function checkAns(idx, btn) {
+            clearInterval(state.timerId);
+            let q = QUESTION_DATA[state.qIdx];
+            let isCorrect = (idx === q.ans);
+            document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents='none');
+
+            if(isCorrect) {
+                state.score++; playTone(600, 'sine');
+                if(btn) btn.classList.add('correct');
+                $('explainBox').className = 'explanation';
+                $('explainBox').innerHTML = `✅ <b>CHÍNH XÁC!</b><br><span style="color:#444;">${q.explain}</span>`;
+            } else {
+                playTone(150, 'sawtooth');
+                if(btn) btn.classList.add('wrong');
+                document.querySelectorAll('.option-btn')[q.ans].classList.add('correct');
+                $('explainBox').className = 'explanation error';
+                $('explainBox').innerHTML = `❌ <b>SAI RỒI!</b><br>Đáp án đúng: <b>${q.options[q.ans]}</b><br><i>${q.explain}</i>`;
+            }
+            
+            // Lưu dữ liệu để review
+            state.answers.push({ idx: state.qIdx + 1, qText: q.q, userAns: idx === -1 ? "Hết giờ" : q.options[idx], isCorrect: isCorrect });
+            
+            $('explainBox').style.display='block';
+            $('nextArea').style.display='block';
+            let panel = document.querySelector('#screen-game .panel-content');
+            setTimeout(() => panel.scrollTo({ top: panel.scrollHeight, behavior: 'smooth' }), 100);
+        }
+
+        function nextQ() {
+            state.qIdx++;
+            if(state.qIdx < QUESTION_DATA.length) loadQ();
+            else finishGame();
+        }
+
+        function finishGame() {
+            clearInterval(state.timerId); showScreen('result');
+            let s = parseFloat((state.score / QUESTION_DATA.length * 10).toFixed(1));
+            $('finalScore').innerText = s;
+            
+            // Nút Xem lại câu sai chỉ hiện khi < 5 điểm
+            $('reviewWrongBtn').style.display = (s < 5.0) ? 'inline-block' : 'none';
+            
+            if(state.isCheated) { $('violationMsg').style.display = 'block'; $('finalScore').style.color = 'red'; }
+            
+            $('feedbackMsg').innerText = s >= 5 ? "Tuyệt vời, em đã hoàn thành bài thi!" : "Em cần cố gắng ôn tập thêm nhé!";
+
+            let h = JSON.parse(localStorage.getItem('e6_scores') || '[]');
+            h.push({ name: state.name, class: state.class, score: s, date: new Date().toLocaleString('vi-VN') });
+            localStorage.setItem('e6_scores', JSON.stringify(h));
+            if(s >= 5) fireConfetti();
+        }
+
+        /* --- UI Events --- */
+        window.onload = () => {
+            init();
+            
+            $('loginForm').onsubmit = e => {
+                e.preventDefault();
+                state.name = $('studentName').value.trim(); state.class = $('studentClass').value.trim();
+                if(state.name && state.class) {
+                    $('greetingMsg').innerText = `Xin chào, ${state.name}!`;
+                    showScreen('review');
+                }
+            };
+            
+            $('toRulesBtn').onclick = () => showScreen('rules');
+            $('startBtn').onclick = startGame;
+            $('nextBtn').onclick = nextQ;
+            
+            // Fix Send Mail
+            $('sendMailBtn').onclick = () => {
+                let s = (state.score / QUESTION_DATA.length * 10).toFixed(1);
+                let subject = encodeURIComponent(`KQ TIENG ANH 6 - ${state.name} (${state.class})`);
+                let body = encodeURIComponent(`Học sinh: ${state.name}\nLớp: ${state.class}\nĐiểm: ${s}/10\nSố câu đúng: ${state.score}/55`);
+                window.location.href = `mailto:nguyenngoc2714@gmail.com?subject=${subject}&body=${body}`;
+            };
+
+            // Fix Review Wrong Answers
+            $('reviewWrongBtn').onclick = () => {
+                let html = '';
+                state.answers.forEach(a => {
+                    if(!a.isCorrect) {
+                        html += `<div class="review-item">
+                            <b>Câu ${a.idx}: ${a.qText}</b>
+                            <span style="color:red; font-size:0.85rem;">Em đã chọn: ${a.userAns}</span>
+                            <div style="color:#666; font-size:0.8rem; font-style:italic;">(Hãy xem lại bài học để tìm đáp án đúng)</div>
+                        </div>`;
+                    }
+                });
+                $('reviewList').innerHTML = html;
+                $('reviewModal').style.display = 'flex';
+            };
+
+            $('teacherBtn').onclick = () => $('teacherModal').style.display='flex';
+            $('tLogin').onclick = () => {
+                if($('tPass').value==='0798945678') {
+                    $('tData').style.display='block';
+                    let h = JSON.parse(localStorage.getItem('e6_scores') || '[]');
+                    $('tTable').innerHTML = h.map(r => `<tr><td style="padding:8px; border-bottom:1px solid #eee;">${r.name}</td><td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">${r.score}</td></tr>`).join('');
+                } else alert('Mật khẩu sai');
+            };
+            
+            // Safe Resume from cheat
+            $('resumeBtn').onclick = () => $('cheatOverlay').style.display='none';
+            
+            document.addEventListener('visibilitychange', () => {
+                if(state.screen === 'game' && document.hidden) {
+                    state.violations++;
+                    $('violCount').innerText = state.violations;
+                    $('cheatOverlay').style.display = 'flex';
+                    if(state.violations >= 2) {
+                        state.isCheated = true;
+                        $('cheatOverlay').style.display='none';
+                        finishGame();
+                    }
+                }
+            });
+        };
+
+        function init() {
+            const s = $('bgShapes');
+            for(let i=0; i<8; i++) {
+                let d = document.createElement('div'); d.className='shape';
+                d.innerHTML='<svg width="30" height="30" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" fill="white"/></svg>';
+                d.style.left = Math.random()*100+'%'; d.style.animationDuration = (15+Math.random()*10)+'s';
+                s.appendChild(d);
+            }
+        }
+
+        function fireConfetti() {
+            const c=$('confettiCanvas'), x=c.getContext('2d'); c.width=window.innerWidth; c.height=window.innerHeight;
+            const p=Array.from({length:60},()=>({x:Math.random()*c.width, y:-10, v:Math.random()*5+2, c:`hsl(${Math.random()*360},100%,50%)`}));
+            function d(){ if(state.screen!=='result') return; x.clearRect(0,0,c.width,c.height); p.forEach(pt=>{pt.y+=pt.v; if(pt.y>c.height)pt.y=-10; x.fillStyle=pt.c; x.fillRect(pt.x,pt.y,6,6)}); requestAnimationFrame(d); } d();
+        }
+    </script>
+</body>
+</html>
